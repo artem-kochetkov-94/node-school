@@ -1,6 +1,6 @@
 import { ITime } from "./types";
 
-export class Timer {
+export abstract class AbstractTimer {
   public start(options: ITime): void {
     performance.mark("start");
     const { hours, minutes, seconds } = options;
@@ -14,7 +14,11 @@ export class Timer {
     }, ms);
   }
 
-  private showMessage(message: string): void {
+  protected abstract showMessage(message: string): void;
+}
+
+export class Timer extends AbstractTimer {
+  protected showMessage(message: string): void {
     console.log(message);
   }
 }
