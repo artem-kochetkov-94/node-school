@@ -1,4 +1,4 @@
-import { compute } from "./factorial";
+import { compute } from "./factorial.js";
 
 process.on("message", (msg: { array: number[] }): void => {
   process.send && process.send(compute(msg));

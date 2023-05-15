@@ -1,5 +1,5 @@
 import { fork } from "child_process";
-import { performanceObserver } from "./performanceObserver";
+import { performanceObserver } from "./performanceObserver.js";
 import { Worker } from "worker_threads";
 
 const workerFunction = (array: number[]): Promise<any> => {
