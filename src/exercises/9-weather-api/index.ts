@@ -1,11 +1,11 @@
-import express from "express";
+import express, { Request, Response } from "express";
 import { isAxiosError } from "axios";
 import { getWeather } from "./services/api.service";
 
 const port = 8005;
 const app = express();
 
-app.get("/weather", async (req, res) => {
+app.get("/weather", async (req: Request, res: Response) => {
   if (!req.query.city || typeof req.query.city !== "string") {
     return res.status(400).send("Bad request");
   }
