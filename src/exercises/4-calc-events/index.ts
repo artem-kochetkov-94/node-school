@@ -1,25 +1,55 @@
 import { sum } from "./sum";
 import { multiply } from "./multiply";
 import { TypedEventEmitter } from "../../utils/TypedEventEmitter";
-import type { CalcEventTypes } from "./types";
+import { CalcEventTypes, Operations } from "./types";
 
-let firstNum = process.argv[2];
-let secondNum = process.argv[3];
-let operation = process.argv[4];
+class App {
+  private operations: Operations;
+  private eventEmmiter = new TypedEventEmitter<CalcEventTypes>();
 
-if (!Number.isFinite(+firstNum)) {
-  throw new Error("firstNum is not a number");
+  constructor() {
+    this.initOperations();
+    this.bindEvents();
+  }
+
+  private initOperations(): void {
+    this.operations = {
+      sum: (a, b): void => console.log(sum(a, b)),
+      multiply: (a, b): void => console.log(multiply(a, b)),
+    };
+  }
+
+  private bindEvents(): void {
+    const keys = Object.keys(this.operations);
+
+    for (let key in keys) {
+      this.eventEmmiter.on(key as keyof Operations, (...args: unknown[]) => {
+        this.operations[key as keyof Operations](...args);
+      });
+    }
+  }
+
+  public execute<T extends keyof CalcEventTypes>(
+    operation: T,
+    ...args: CalcEventTypes[T]
+  ): void {
+    try {
+      if (!this.operations[operation]) {
+        throw new Error("Invalid operation");
+      }
+
+      this.eventEmmiter.emit(operation, ...args);
+    } catch (e: unknown) {
+      if (e instanceof Error) {
+        console.log(e.message);
+      }
+    }
+  }
 }
-if (!Number.isFinite(+secondNum)) {
-  throw new Error("secondNum is not a number");
-}
 
-const eventEmmiter = new TypedEventEmitter<CalcEventTypes>();
-eventEmmiter.on("sum", (a, b) => console.log(sum(a, b)));
-eventEmmiter.on("multiply", (a, b) => console.log(multiply(a, b)));
+const [, , firstArg, secondArg, operation] = process.argv;
+const firstNum = Number(firstArg);
+const secondNum = Number(secondArg);
 
-if (operation === "sum" || operation === "multiply") {
-  eventEmmiter.emit(operation, +firstNum, +secondNum);
-} else {
-  throw new Error("invalid operation");
-}
+const app = new App();
+app.execute(operation as keyof CalcEventTypes, firstNum, secondNum);
