@@ -1,6 +1,6 @@
 import { Timer } from "./Timer";
 import { performanceObserver } from "./performanceObserver";
-import { PromptService } from "./promptService";
+import { PromptService } from "./prompt-service";
 import { ITime } from "./types";
 
 class App {
