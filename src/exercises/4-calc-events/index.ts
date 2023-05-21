@@ -22,9 +22,9 @@ class App {
   private bindEvents(): void {
     const keys = Object.keys(this.operations);
 
-    for (let key in keys) {
-      this.eventEmmiter.on(key as keyof Operations, (...args: unknown[]) => {
-        this.operations[key as keyof Operations](...args);
+    for (let key of keys) {
+      this.eventEmmiter.on(key as keyof Operations, (...args): void => {
+        this.operations[key as keyof Operations].apply(this, args);
       });
     }
   }
@@ -37,6 +37,8 @@ class App {
       if (!this.operations[operation]) {
         throw new Error("Invalid operation");
       }
+
+      console.log("operation", operation);
 
       this.eventEmmiter.emit(operation, ...args);
     } catch (e: unknown) {

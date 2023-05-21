@@ -4,6 +4,6 @@ export type CalcEventTypes = {
 };
 
 export type Operations = {
-  sum: (...args: unknown[]) => void;
-  multiply: (...args: unknown[]) => void;
+  sum: (a: number, b: number) => void;
+  multiply: (a: number, b: number) => void;
 };
