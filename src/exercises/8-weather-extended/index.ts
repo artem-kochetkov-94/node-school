@@ -1,9 +1,9 @@
 import { getArgs } from "./helpers/args.js";
-import { getWeather, getIcon } from "./services/api.service.js";
+import { getWeather, iconMap } from "./services/api.service.js";
+import { handleError } from "./services/error.service.js";
 import {
   printHelp,
   printSuccess,
-  printError,
   printWeather,
 } from "./services/log.service.js";
 import {
@@ -11,56 +11,38 @@ import {
   WEATHER_DICTIONARY,
   getKeyValue,
 } from "./services/storage.service.js";
-import { isAxiosError } from "axios";
+import dotenv from "dotenv";
+
+const saveValue = async (
+  key: string,
+  value: string | string[]
+): Promise<void> => {
+  try {
+    if (!value.length) {
+      throw new Error(`Не передано значение для ${key}`);
+    }
+
+    await saveKeyValue(key, value);
+    printSuccess(`${key} сохранён`);
+  } catch (e) {
+    handleError(e);
+  }
+};
 
 const saveToken = async (token: string): Promise<void> => {
-  if (!token.length) {
-    printError("Не передан token");
-    return;
-  }
-  try {
-    await saveKeyValue(WEATHER_DICTIONARY.token, token);
-    printSuccess("Токен сохранён");
-  } catch (e) {
-    if (e instanceof Error) {
-      printError(e.message);
-    }
-  }
+  await saveValue(WEATHER_DICTIONARY.token, token);
 };
 
 const saveCity = async (city: string): Promise<void> => {
-  if (!city.length) {
-    printError("Не передан город");
-    return;
-  }
-
-  try {
-    await saveKeyValue(
-      WEATHER_DICTIONARY.city,
-      city.split(",").map((city) => city.trim())
-    );
-    printSuccess("Город сохранён");
-  } catch (e) {
-    if (e instanceof Error) {
-      printError(e.message);
-    }
-  }
+  console.log("city", city);
+  await saveValue(
+    WEATHER_DICTIONARY.city,
+    city.split(",").map((item) => item.trim())
+  );
 };
 
 const saveLanguage = async (language: string): Promise<void> => {
-  if (!language.length) {
-    printError("Не передан язык");
-    return;
-  }
-
-  try {
-    await saveKeyValue(WEATHER_DICTIONARY.language, language);
-    printSuccess("Язык сохранён");
-  } catch (e) {
-    if (e instanceof Error) {
-      printError(e.message);
-    }
-  }
+  await saveValue(WEATHER_DICTIONARY.language, language);
 };
 
 const getForcast = async () => {
@@ -77,24 +59,19 @@ const getForcast = async () => {
     );
 
     weather.forEach((w) => {
-      printWeather(w, getIcon(w.weather[0].icon), language);
+      printWeather(
+        w,
+        iconMap[w.weather[0].icon ? w.weather[0].icon.slice(0, -1) : ""],
+        language
+      );
     });
   } catch (e) {
-    if (isAxiosError(e)) {
-      if (e.response?.status === 404) {
-        printError("Неверно указан город");
-      } else if (e?.response?.status === 401) {
-        printError("Неверно указан токен");
-      } else {
-        printError(e.message);
-      }
-    } else if (e instanceof Error) {
-      printError(e.message);
-    }
+    handleError(e);
   }
 };
 
 const initCLI = () => {
+  dotenv.config();
   const args = getArgs(process.argv);
 
   if (args.h) {
