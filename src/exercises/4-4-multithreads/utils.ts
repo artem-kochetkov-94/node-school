@@ -10,6 +10,20 @@ export function generateArray(from: number, to: number): number[] {
   return array;
 }
 
+export const generateArrays = (
+  arraysCount: number,
+  itemsCount: number
+): number[][] => {
+  const result = [];
+  const divider = itemsCount / arraysCount;
+
+  for (let i = 0; i < arraysCount; i++) {
+    result.push(generateArray(i * divider + 1, divider * (i + 1)));
+  }
+
+  return result;
+};
+
 export function compute(array: number[]): number {
   return array.filter((item) => item % 3 === 0).length;
 }
