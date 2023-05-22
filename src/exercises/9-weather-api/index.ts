@@ -1,6 +1,9 @@
 import express, { Request, Response } from "express";
 import { isAxiosError } from "axios";
 import { getWeather } from "./services/api.service";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const port = 8005;
 const app = express();

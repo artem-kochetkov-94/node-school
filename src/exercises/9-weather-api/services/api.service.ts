@@ -5,7 +5,7 @@ const API_KEY = "5f0a6ff7bc268ee37960adc16b351fb9";
 
 const getWeather = async (city: string): Promise<IWeather> => {
   const { data } = await axios.get<any, AxiosResponse<IWeather, any>, any>(
-    "https://api.openweathermap.org/data/2.5/weather",
+    `${process.env.API_URL}/weather`,
     {
       params: {
         q: city,
